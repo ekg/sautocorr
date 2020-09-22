@@ -1,3 +1,5 @@
-# seqautocorr
+# sautocorr
 
-Exploring autocorrelation in sequences with the goal of finding repeat subunits in DNA.
+Simple command line tool to calculate the autocorrelation of a signal across various lags.
+
+The goal is to develop a method that efficiently determines the boundaries of repeat sequences.
