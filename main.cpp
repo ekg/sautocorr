@@ -32,15 +32,19 @@ int main (int argc, char** argv) {
         return -1;
     }
 
-    std::vector<double> autocorrs;
-    for (int k = 1; k < std::min((int)max_lag, (int)vals.size()); ++k) {
-        autocorrs.push_back(autocorrelation(vals, k));
-    }
+    uint64_t max_j = 5000;
 
-    std::cout << "lag\tautocorr" << std::endl;
-    for (int i = 0; i < autocorrs.size(); ++i) {
-        std::cout << i+1 << "\t" << autocorrs[i] << std::endl;
+    for (uint64_t i = 0; i < vals.size(); ++i) {
+        for (uint64_t j = 10; j < max_j; j+=500) {
+            range_t r = next_repeat_range(vals, i, j, max_lag);
+            std::cerr << i << "\t" << j << "\t" << r.begin << "\t" << r.end << std::endl;
+            if (r.end > 0) {
+                i = r.end;
+                break;
+            }
+        }
     }
+                              
 
     return 0;
 }
