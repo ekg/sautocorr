@@ -29,16 +29,19 @@ double vec_stdev(T v_begin,
 
 template<typename T>
 double autocorrelation(const std::vector<T>& v,
-                       uint64_t k) {
-    double mean_i = vec_mean(v.begin(), v.end()-k);
-    double stdev_i = vec_stdev(v.begin(), v.end()-k, mean_i);
-    double mean_j = vec_mean(v.begin()+k, v.end());
-    double stdev_j = vec_stdev(v.begin()+k, v.end(), mean_j);
+                       uint64_t k,
+                       uint64_t stride,
+                       double mean_i, double mean_j,
+                       double stdev_i, double stdev_j) {
+    //double mean_i = vec_mean(v.begin(), v.end()-k);
+    //double stdev_i = vec_stdev(v.begin(), v.end()-k, mean_i);
+    //double mean_j = vec_mean(v.begin()+k, v.end());
+    //double stdev_j = vec_stdev(v.begin()+k, v.end(), mean_j);
     double sum_v = 0;
-    for (size_t i = 0 ; i < v.size() - k ; i++) {
+    for (size_t i = 0 ; i < v.size() - k ; i+=stride) {
         sum_v += (v[i] - mean_i) * (v[i+k] - mean_j);
     }
-    return (sum_v / (v.size() - k)) / (stdev_i * stdev_j);
+    return (sum_v / ((v.size() - k)/stride)) / (stdev_i * stdev_j);
 }
 
 template<typename T>
@@ -56,15 +59,15 @@ double autocorrelation_at(const std::vector<T>& v, uint64_t k, uint64_t j, uint6
     //return autocorrelation_range(v, k, 0, v.size());
 }
 
-struct range_t {
-    uint64_t begin = 0;
-    uint64_t end = 0;
+struct repeat_t {
+    uint64_t length = 0;
+    double z_score = 0;
 };
 
 
-range_t next_repeat_range(const std::vector<int64_t>& vals,
-                          uint64_t start,
-                          uint64_t length,
-                          uint64_t max_lag,
-                          uint64_t min_repeat = 10,
-                          double target_z = 3);
+repeat_t repeat(const std::vector<uint8_t>& vals,
+                uint64_t min_lag,
+                uint64_t max_lag,
+                uint64_t min_repeat,
+                double target_z,
+                uint64_t stride);

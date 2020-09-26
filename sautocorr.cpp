@@ -1,23 +1,27 @@
 #include "sautocorr.hpp"
 
-range_t next_repeat_range(const std::vector<int64_t>& vals,
-                          uint64_t start,
-                          uint64_t length,
-                          uint64_t max_lag,
-                          uint64_t min_repeat,
-                          double target_z) {
+repeat_t repeat(const std::vector<uint8_t>& vals,
+                uint64_t min_lag,
+                uint64_t max_lag,
+                uint64_t min_repeat,
+                double target_z,
+                uint64_t stride) {
 
-    std::vector<double> autocorrs;
-    for (int k = start; k < start+std::min((int)max_lag, (int)length); ++k) {
-        autocorrs.push_back(autocorrelation(vals, k));
+    // bound max lag
+    max_lag = std::min(max_lag, vals.size()/2);
+    std::vector<double> autocorrs(max_lag - min_lag);
+    double mean = vec_mean(vals.begin(), vals.end());
+    double stdev = vec_stdev(vals.begin(), vals.end(), mean);
+    for (int k = min_lag; k < max_lag; ++k) {
+        autocorrs[k-min_lag] = autocorrelation(vals, k, stride, mean, mean, stdev, stdev);
     }
 
     double mean_ac = vec_mean(autocorrs.begin(), autocorrs.end());
     double stdev_ac = vec_stdev(autocorrs.begin(), autocorrs.end(), mean_ac);
-    std::cerr << "mean = " << mean_ac << std::endl;
-    std::cerr << "stdev = " << stdev_ac << std::endl;
+    //std::cerr << "mean = " << mean_ac << std::endl;
+    //std::cerr << "stdev = " << stdev_ac << std::endl;
     if (std::isnan(mean_ac) || std::isnan(stdev_ac)) {
-        std::cerr << "singularity found" << std::endl;
+        //std::cerr << "singularity found" << std::endl;
         return {0, 0};
     }
 
@@ -40,20 +44,24 @@ range_t next_repeat_range(const std::vector<int64_t>& vals,
     uint64_t idx = 0;
     // find the peak
     // we expect it to be the highest score other than low
-    for (uint64_t i = min_repeat; i < zscores.size(); ++i) {
-        if (zscores[i] > target_z) {
-            max_z = zscores[i];
+    bool seen_target = false;
+    for (uint64_t i = 0; i < zscores.size(); ++i) {
+        auto& z = zscores[i];
+        if (z > target_z) {
+            seen_target = true;
+            max_z = std::max(z, max_z);
             idx = i;
+        } else if (seen_target) {
             break;
         }
     }
     if (idx == 0) {
-        std::cerr << "no repeat found" << std::endl;
+        //std::cerr << "no repeat found" << std::endl;
         return {0, 0};
     }
-    uint64_t repeat_size = idx;
-    std::cerr << "repeat is " << repeat_size << std::endl;
-    return {start, repeat_size};
+    uint64_t repeat_size = idx + min_lag;
+    //std::cerr << "repeat is " << repeat_size << std::endl;
+    return {repeat_size, max_z};
     // pick a repeat length
     // scan forward with it
 
