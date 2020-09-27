@@ -66,6 +66,7 @@ struct repeat_t {
 
 
 repeat_t repeat(const std::vector<uint8_t>& vals,
+                const std::string& seq_name,
                 uint64_t min_lag,
                 uint64_t max_lag,
                 uint64_t min_repeat,
