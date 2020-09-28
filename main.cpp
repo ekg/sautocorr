@@ -30,8 +30,13 @@ int main (int argc, char** argv) {
         [&](const std::string& name,
             const std::string& seq) {
             std::vector<uint8_t> vec(seq.begin(), seq.end());
-            sautocorr::repeat_t result = sautocorr::repeat(vec, name, min_repeat,
-                                                           max_repeat, min_repeat, min_z, stride);
+            sautocorr::repeat_t result = sautocorr::repeat(vec,
+                                                           min_repeat,
+                                                           max_repeat,
+                                                           min_repeat,
+                                                           min_z,
+                                                           stride,
+                                                           name);
             std::cerr << name << "\t" << result.length << "\t" << result.z_score << std::endl;
         });
 

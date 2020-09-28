@@ -67,12 +67,12 @@ struct repeat_t {
 };
 
 repeat_t repeat(const std::vector<uint8_t>& vals,
-                //const std::string& seq_name,
                 uint64_t min_lag,
                 uint64_t max_lag,
                 uint64_t min_repeat,
                 double target_z,
-                uint64_t stride) {
+                uint64_t stride,
+                const std::string& seq_name = "") {
 
     // bound max lag
     max_lag = std::min(max_lag, vals.size()/2);
@@ -98,15 +98,15 @@ repeat_t repeat(const std::vector<uint8_t>& vals,
                                         return (d - mean_ac)/stdev_ac;
                                     });
 
-    //std::cout << "seq.name\tlag\tautocorr\tz.score" << std::endl;
-    /*
-    for (int i = 0; i < autocorrs.size(); ++i) {
-        std::cout << seq_name << "\t"
-                  << i+min_lag << "\t"
-                  << autocorrs[i] << "\t"
-                  << zscores[i] << std::endl;
+    if (seq_name.size()) {
+        //std::cout << "seq.name\tlag\tautocorr\tz.score" << std::endl;
+        for (int i = 0; i < autocorrs.size(); ++i) {
+            std::cout << seq_name << "\t"
+                      << i+min_lag << "\t"
+                      << autocorrs[i] << "\t"
+                      << zscores[i] << std::endl;
+        }
     }
-    */
 
     // find our likely first max length
     double max_z = 0;
