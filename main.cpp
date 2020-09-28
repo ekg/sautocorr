@@ -24,15 +24,14 @@ int main (int argc, char** argv) {
     double min_z = std::stod(argv[4]);
     int stride = std::stoi(argv[5]);
 
-
     std::cout << "seq.name\tlag\tautocorr\tz.score" << std::endl;
     seqiter::for_each_seq_in_file(
         infile,
         [&](const std::string& name,
             const std::string& seq) {
             std::vector<uint8_t> vec(seq.begin(), seq.end());
-            repeat_t result = repeat(vec, name, min_repeat,
-                                     max_repeat, min_repeat, min_z, stride);
+            sautocorr::repeat_t result = sautocorr::repeat(vec, name, min_repeat,
+                                                           max_repeat, min_repeat, min_z, stride);
             std::cerr << name << "\t" << result.length << "\t" << result.z_score << std::endl;
         });
 
